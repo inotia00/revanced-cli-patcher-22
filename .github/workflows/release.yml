@@ -12,15 +12,12 @@ jobs:
     name: Release
     permissions:
       contents: write
+      id-token: write
+      attestations: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          # Make sure the release step uses its own credentials:
-          # https://github.com/cycjimmy/semantic-release-action#private-packages
-          persist-credentials: false
-          fetch-depth: 0
 
       - name: Cache Gradle
         uses: burrunan/gradle-cache-action@v1
@@ -47,6 +44,14 @@ jobs:
           fingerprint: ${{ vars.GPG_FINGERPRINT }}
 
       - name: Release
+        uses: cycjimmy/semantic-release-action@v4
+        id: release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm exec semantic-release
+
+      - name: Attest
+        if: steps.release.outputs.new_release_published == 'true'
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: 'ReVanced CLI ${{ steps.release.outputs.new_release_git_tag }}'
+          subject-path: build/libs/revanced-cli*.jar

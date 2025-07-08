@@ -85,58 +85,55 @@ internal object ListPatchesCommand : Runnable {
             }
         }
 
-        fun PatchOption<*>.buildString() =
+        fun PatchOption<*>.buildString() = buildString {
+            appendLine("Title: $title")
+            description?.let { appendLine("Description: $it") }
+            appendLine("Required: $required")
+            default?.let {
+                appendLine("Key: $key")
+                append("Default: $it")
+            } ?: append("Key: $key")
+
+            values?.let { values ->
+                appendLine("\nPossible values:")
+                append(values.map { "${it.value} (${it.key})" }.joinToString("\n").prependIndent("\t"))
+            }
+
+            append("\nType: $type")
+        }
+
+        fun IndexedValue<Patch<*>>.buildString() = let { (index, patch) ->
             buildString {
-                appendLine("Title: $title")
-                description?.let { appendLine("Description: $it") }
-                appendLine("Required: $required")
-                default?.let {
-                    appendLine("Key: $key")
-                    append("Default: $it")
-                } ?: append("Key: $key")
+                if (withIndex) appendLine("Index: $index")
 
-                values?.let { values ->
-                    appendLine("\nPossible values:")
-                    append(values.map { "${it.value} (${it.key})" }.joinToString("\n").prependIndent("\t"))
+                append("Name: ${patch.name}")
+
+                if (withDescriptions) patch.description?.let { append("\nDescription: $it") }
+
+                append("\nEnabled: ${patch.use}")
+
+                if (withOptions && patch.options.isNotEmpty()) {
+                    appendLine("\nOptions:")
+                    append(
+                        patch.options.values.joinToString("\n\n") { option ->
+                            option.buildString()
+                        }.prependIndent("\t"),
+                    )
                 }
 
-                append("\nType: $type")
-            }
-
-        fun IndexedValue<Patch<*>>.buildString() =
-            let { (index, patch) ->
-                buildString {
-                    if (withIndex) appendLine("Index: $index")
-
-                    append("Name: ${patch.name}")
-
-                    if (withDescriptions) append("\nDescription: ${patch.description}")
-
-                    append("\nEnabled: ${patch.use}")
-
-                    if (withOptions && patch.options.isNotEmpty()) {
-                        appendLine("\nOptions:")
-                        append(
-                            patch.options.values.joinToString("\n\n") { option ->
-                                option.buildString()
-                            }.prependIndent("\t"),
-                        )
-                    }
-
-                    if (withPackages && patch.compatiblePackages != null) {
-                        appendLine("\nCompatible packages:")
-                        append(
-                            patch.compatiblePackages!!.joinToString("\n") {
-                                it.buildString()
-                            }.prependIndent("\t"),
-                        )
-                    }
+                if (withPackages && patch.compatiblePackages != null) {
+                    appendLine("\nCompatible packages:")
+                    append(
+                        patch.compatiblePackages!!.joinToString("\n") {
+                            it.buildString()
+                        }.prependIndent("\t"),
+                    )
                 }
             }
+        }
 
-        fun Patch<*>.filterCompatiblePackages(name: String) =
-            compatiblePackages?.any { (compatiblePackageName, _) -> compatiblePackageName == name }
-                ?: withUniversalPatches
+        fun Patch<*>.filterCompatiblePackages(name: String) = compatiblePackages?.any { (compatiblePackageName, _) -> compatiblePackageName == name }
+            ?: withUniversalPatches
 
         val patches = loadPatchesFromJar(patchesFiles).withIndex().toList()
 
