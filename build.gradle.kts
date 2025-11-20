@@ -15,8 +15,17 @@ application {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
     google()
+    maven {
+        // A repository must be specified for some reason. "registry" is a dummy.
+        url = uri("https://maven.pkg.github.com/inotia00/registry")
+        credentials {
+            username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_ACTOR")
+            password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
+        }
+    }
     maven {
         // A repository must be specified for some reason. "registry" is a dummy.
         url = uri("https://maven.pkg.github.com/revanced/registry")
@@ -31,6 +40,7 @@ dependencies {
     implementation(libs.revanced.patcher)
     implementation(libs.revanced.library)
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.gson)
     implementation(libs.picocli)
 
     testImplementation(libs.kotlin.test)
@@ -38,12 +48,12 @@ dependencies {
 
 kotlin {
     compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_11)
+        jvmTarget.set(JvmTarget.JVM_17)
     }
 }
 
 java {
-    targetCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 tasks {

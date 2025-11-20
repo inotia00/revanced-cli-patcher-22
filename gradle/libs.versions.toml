@@ -1,18 +1,20 @@
 [versions]
-shadow = "8.1.1"
-kotlin = "2.0.20"
-kotlinx = "1.8.1"
-picocli = "4.7.6"
-revanced-patcher = "21.0.0"
-revanced-library = "3.1.0"
+gson = "2.13.2"
+kotlin = "2.0.21"
+kotlinx-coroutines-core = "1.10.2"
+picocli = "4.7.7"
+revanced-patcher = "22.0.0-dev.1"
+revanced-library = "1.0.0"
+shadow = "8.3.9"
 
 [libraries]
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
-kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines-core" }
 picocli = { module = "info.picocli:picocli", version.ref = "picocli" }
 revanced-patcher = { module = "app.revanced:revanced-patcher", version.ref = "revanced-patcher" }
 revanced-library = { module = "app.revanced:revanced-library-jvm", version.ref = "revanced-library" }
 
 [plugins]
-shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
