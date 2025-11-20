@@ -181,6 +181,18 @@ internal object PatchCommand : Runnable {
     private var aaptBinaryPath: File? = null
 
     @CommandLine.Option(
+        names = ["--unsigned"],
+        description = ["Disable signing of the final apk."],
+    )
+    private var unsigned: Boolean = false
+
+    @CommandLine.Option(
+        names = ["--rip-lib"],
+        description = ["Rip native libs from APK."],
+    )
+    private var ripLibs = arrayOf<String>()
+
+    @CommandLine.Option(
         names = ["--purge"],
         description = ["Purge temporary files directory after patching."],
         showDefaultValue = ALWAYS,
@@ -336,9 +348,9 @@ internal object PatchCommand : Runnable {
         // region Save.
 
         apk.copyTo(temporaryFilesPath.resolve(apk.name), overwrite = true).apply {
-            patcherResult.applyTo(this)
+            patcherResult.applyTo(this, ripLibs)
         }.let { patchedApkFile ->
-            if (installation?.mount != true) {
+            if (installation?.mount != true && !unsigned) {
                 ApkUtils.signApk(
                     patchedApkFile,
                     outputFilePath,
